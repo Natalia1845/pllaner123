@@ -216,7 +216,6 @@ def shopping_list():
 
 
 
-
 import pandas as pd
 from flask import send_file
 from io import BytesIO
@@ -241,6 +240,46 @@ def export_excel():
     output.seek(0)
 
     return send_file(output, download_name="menu.xlsx", as_attachment=True)
+
+from flask import make_response
+from reportlab.pdfgen import canvas
+
+from flask import send_file
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from io import BytesIO
+import os
+
+@app.route('/export_pdf')
+def export_pdf():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    menu_items = WeeklyMenu.query.filter_by(user_id=user_id).all()
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    # ✅ Підключення шрифту з підтримкою кирилиці
+    font_path = os.path.join("fonts", "DejaVuSans.ttf")
+    pdfmetrics.registerFont(TTFont("DejaVu", font_path))
+    p.setFont("DejaVu", 12)
+
+    y = 800
+    for item in menu_items:
+        text = f"{item.day_of_week} - {item.meal_type}: {item.meal.name}"
+        p.drawString(50, y, text)
+        y -= 20
+        if y < 50:
+            p.showPage()
+            p.setFont("DejaVu", 12)
+            y = 800
+
+    p.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="weekly_menu.pdf", mimetype='application/pdf')
 
 
 
