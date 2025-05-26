@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Додати страву</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: url('/static/bg-wood.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.85);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.6rem;
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .ingredients-list h3 {
+            margin-bottom: 1rem;
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .ingredient-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .ingredient-item label {
+            flex: 1;
+        }
+
+        .ingredient-item input[type="text"] {
+            width: 90px;
+            margin-left: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #27ae60;
+            color: #fff;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #219150;
+        }
+
+        .link-back {
+            display: inline-block;
+            margin-top: 1.5rem;
+            text-decoration: none;
+            color: #6a1b9a;
+            font-weight: 600;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <h1>➕ Додати нову страву</h1>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="post">
+            <input type="text" name="name" placeholder="Назва страви" required>
+
+            <div class="ingredients-list">
+                <h3>Інгредієнти:</h3>
+                {% for ingredient in ingredients %}
+                    <div class="ingredient-item">
+                        <input type="checkbox" name="ingredient_{{ ingredient.id }}">
+                        <label>{{ ingredient.name }} ({{ ingredient.calories_per_100g }} ккал / 100 г)</label>
+                        <input type="text" name="weight_{{ ingredient.id }}" placeholder="Грамів">
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn">💾 Зберегти страву</button>
+        </form>
+
+        <a href="{{ url_for('home') }}" class="link-back">← Назад</a>
+    </div>
+</body>
+</html>
+
+
+

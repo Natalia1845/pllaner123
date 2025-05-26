@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Meal Planner — Головна</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: url('/static/bg-wood.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+        }
+
+        .overlay {
+            background-color: rgba(255, 255, 255, 0.85);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .main {
+            max-width: 700px;
+            margin: auto;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 2.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #4CAF50;
+            color: white;
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: background 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            max-width: 320px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links a:hover {
+            background: #43a047;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <div class="main">
+        <h1>🍽 Meal Planner</h1>
+        <div class="nav-links">
+            <a href="{{ url_for('add_meal') }}">➕ Додати страву</a>
+            <a href="{{ url_for('weekly_menu') }}">📅 Тижневе меню</a>
+            <a href="{{ url_for('shopping_list') }}">🛒 Список покупок</a>
+            <a href="{{ url_for('logout') }}">🚪 Вийти</a>
+        </div>
+
+        <footer>
+            <p>&copy; {{ year }} Meal Planner</p>
+        </footer>
+    </div>
+</body>
+</html>
