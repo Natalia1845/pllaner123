@@ -124,8 +124,95 @@ def weekly_menu():
     )
 
 
+@app.route('/edit_menu', methods=['GET', 'POST'])
+def edit_menu():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    meals = Meal.query.filter_by(user_id=user_id).all()
+    days = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'Пʼятниця', 'Субота', 'Неділя']
+    meal_types = ['Сніданок', 'Обід', 'Вечеря']
+
+    if request.method == 'POST':
+        # Очистити старе меню
+        WeeklyMenu.query.filter_by(user_id=user_id).delete()
+
+        for day in days:
+            for mtype in meal_types:
+                meal_id = request.form.get(f"{day}_{mtype}")
+                if meal_id:
+                    db.session.add(WeeklyMenu(
+                        user_id=user_id,
+                        meal_id=int(meal_id),
+                        day_of_week=day,
+                        meal_type=mtype
+                    ))
+        db.session.commit()
+        flash("✅ Меню оновлено вручну!")
+        return redirect(url_for('weekly_menu'))
+
+    # Передаємо шаблону всі страви і структуру днів/типів
+    return render_template('edit_menu.html', meals=meals, days=days, meal_types=meal_types)
 
 
+
+
+
+@app.route('/refresh_menu', methods=['POST'])
+def refresh_weekly_menu():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    meals = Meal.query.filter_by(user_id=user.id).all()
+
+    if len(meals) < 3:
+        flash("❌ Недостатньо страв для формування меню.")
+        return redirect(url_for('weekly_menu'))
+
+    WeeklyMenu.query.filter_by(user_id=user.id).delete()
+
+    import random
+    days = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'Пʼятниця', 'Субота', 'Неділя']
+    meal_types = ['Сніданок', 'Обід', 'Вечеря']
+
+    for day in days:
+        chosen = random.sample(meals, 3)
+        for i, meal in enumerate(chosen):
+            db.session.add(WeeklyMenu(
+                user_id=user.id,
+                meal_id=meal.id,
+                day_of_week=day,
+                meal_type=meal_types[i]
+            ))
+
+    db.session.commit()
+    flash("✅ Меню оновлено успішно!")
+    return redirect(url_for('weekly_menu'))
+
+
+@app.route('/shopping_list')
+def shopping_list():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    menu_items = WeeklyMenu.query.filter_by(user_id=user_id).all()
+
+    ingredient_totals = {}
+    ingredient_stores = {}
+
+    for item in menu_items:
+        for mi in item.meal.ingredients:
+            name = mi.ingredient.name
+            grams = mi.amount_in_grams
+            store = mi.ingredient.preferred_store or "🛍 Будь-який"
+
+            ingredient_totals[name] = ingredient_totals.get(name, 0) + grams
+            ingredient_stores[name] = store
+
+    return render_template('shopping_list.html', ingredients=ingredient_totals, stores=ingredient_stores)
 
 
 
